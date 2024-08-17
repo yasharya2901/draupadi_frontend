@@ -39,7 +39,6 @@ export const verifyOtp = async (confirmationResult, otpCode) => {
   try {
     const result = await confirmationResult.confirm(otpCode);
     const user = result.user;
-    console.log('User signed in successfully:', user);
     return user;
   } catch (error) {
     console.error('Error verifying OTP:', error);
