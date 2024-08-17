@@ -119,8 +119,24 @@ function DetailForm() {
     <div>
       <form className='flex flex-col max-w-[400px] p-4 input-custom-style bg-[#a19e9e] rounded-md' onSubmit={handleSubmit}>
         <Field icon={faUser} type="text" defaultValue={name} placeholder={`Name`} onChange={(e) => setName(e.target.value)} />
-        <Field icon={faPhone} type="number" defaultValue={phone} placeholder={`+918932358392`} onChange={(e) => setPhone(e.target.value)} />
+        {/* <Field icon={faPhone} type="number" defaultValue={phone} placeholder={`+918932358392`} onChange={(e) => setPhone(e.target.value)} /> */}
         
+        <div className='flex flex-row items-center justify-between'>
+          {/* <label htmlFor={title} className='p-2 w-full block'>{title}</label> */}
+          <FontAwesomeIcon className='p-3' icon={faPhone} />
+          <div className='flex flex-row items-center w-full'>
+            <span>+91</span>
+            <input
+              type={`number`}
+              className={`border p-2 w-full m-2 max-w-xs appearance-none`}
+              placeholder={`9876543210`}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              style={{ MozAppearance: 'textfield' }}
+            />
+          </div>
+        </div>
+
         <div className='flex flex-row items-center justify-between'>
           <FontAwesomeIcon icon={faUserShield} className='p-3' />
           <input 

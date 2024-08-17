@@ -23,8 +23,9 @@ import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 export const sendOtp = async (phoneNumber) => {
 //   setupRecaptchaVerifier(); // Ensure reCAPTCHA is set up
-  console.log(`Sending OTP to ${phoneNumber}...`);
+  console.log(`Sending OTP to +91${phoneNumber}...`);
   const appVerifier = window.recaptchaVerifier;
+  phoneNumber = `+91${phoneNumber}`;
 
   try {
     const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
