@@ -3,8 +3,11 @@ import { Loader } from '@googlemaps/js-api-loader';
 import Field from '../Field/Field';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
-import { faLocationDot, faPhone, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faPhone, faUser, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import './DetailForm.css';
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { auth, app } from '../../firebase/firebaseConfig';
+import { sendOtp, verifyOtp } from '../../services/authServices';
 
 function DetailForm() {
   const [name, setName] = useState('');
@@ -12,8 +15,11 @@ function DetailForm() {
   const [locations, setLocations] = useState([{ addressType: 'home', address: '', lat: '', lng: '' }]);
   const [removingIndex, setRemovingIndex] = useState(null);
   const [addingIndex, setAddingIndex] = useState(null);
+  const [otp, setOtp] = useState('');
   const inputRefs = useRef([]);
-
+  const [confirmationResult, setConfirmationResult] = useState(null);
+  const [otpSent, setOtpSent] = useState("Send OTP");
+  
   useEffect(() => {
     const loader = new Loader({
       apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -43,6 +49,23 @@ function DetailForm() {
     });
   }, [locations]);
 
+  // Set up reCAPTCHA verifier once on component mount
+  useEffect(() => {
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      'size': 'invisible',
+      'callback': (response) => {
+        // reCAPTCHA solved, allow signInWithPhoneNumber.
+      },
+      'expired-callback': () => {
+        // Response expired. Ask user to solve reCAPTCHA again.
+      }
+    });
+
+    return () => {
+      window.recaptchaVerifier.clear();
+    };
+  }, []);
+
   const handleAddLocation = () => {
     const newLocation = { addressType: 'home', address: '', lat: '', lng: '' };
     setLocations([...locations, newLocation]);
@@ -66,14 +89,30 @@ function DetailForm() {
     setLocations(newLocations);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const data = {
-      name: name,
-      phone: phone,
-      locations: [...locations]
-    };
-    console.log(data);
+  const handleSendOtp = async () => {
+    try {
+      const confirmationResult = await sendOtp(phone);
+      setOtpSent("Resend OTP");
+      setConfirmationResult(confirmationResult);
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      throw error;
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      const data = {
+        name: name,
+        phone: phone,
+        locations: [...locations]
+      };
+      const response = await verifyOtp(confirmationResult, otp);
+      console.log(data);
+    } catch (error) {
+      alert("Wrong OTP")
+    }
   };
 
   return (
@@ -81,9 +120,22 @@ function DetailForm() {
       <form className='flex flex-col max-w-[400px] p-4 input-custom-style bg-[#a19e9e] rounded-md' onSubmit={handleSubmit}>
         <Field icon={faUser} type="text" defaultValue={name} placeholder={`Name`} onChange={(e) => setName(e.target.value)} />
         <Field icon={faPhone} type="number" defaultValue={phone} placeholder={`+918932358392`} onChange={(e) => setPhone(e.target.value)} />
+        
+        <div className='flex flex-row items-center justify-between'>
+          <FontAwesomeIcon icon={faUserShield} className='p-3' />
+          <input 
+            type="text"
+            className={`border border-gray-400 p-2 m-2 w-24`}
+            placeholder='Enter OTP'
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+          />
+          <button id="send-otp-button" type="button" className='p-2 m-2 text-white rounded-md max-w-xs hover:underline' onClick={handleSendOtp}>{otpSent}</button>
+        </div>
+        <div id="recaptcha-container"></div>
 
         <div className='flex flex-row items-center justify-center'>
-          <FontAwesomeIcon icon={faLocationDot}  className='p-3'/>
+          <FontAwesomeIcon icon={faLocationDot} className='p-3' />
           <label htmlFor="locations" className='p-2 w-full block'>Locations</label>
         </div>
         {locations.map((location, index) => (
