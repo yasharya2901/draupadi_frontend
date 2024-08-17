@@ -1,19 +1,22 @@
-import React from 'react'
+import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
 
-function Field({title, type, placeholder, defaultValue, onChange}) {
+function Field({ icon, type, placeholder, defaultValue, onChange }) {
   return (
-    <div className='flex flex-col'>
-        <label htmlFor="name" className='p-2 w-full block'>{title}</label>
-        
-          <input 
-            type={type}
-            className='border border-gray-400 p-2 w-full rounded-md m-2 max-w-xs'
-            placeholder={placeholder}
-            value={defaultValue}
-            onChange={onChange}
-          />
+    <div className='flex flex-row items-center justify-center'>
+      {/* <label htmlFor={title} className='p-2 w-full block'>{title}</label> */}
+      <FontAwesomeIcon className='p-3' icon={icon} />
+      <input
+        type={type}
+        className={`border p-2 w-full m-2 max-w-xs ${type === 'number' ? 'appearance-none' : ''}`}
+        placeholder={placeholder}
+        value={defaultValue}
+        onChange={onChange}
+        style={type === 'number' ? { MozAppearance: 'textfield' } : {}}
+      />
     </div>
-  )
+  );
 }
 
-export default Field
+export default Field;

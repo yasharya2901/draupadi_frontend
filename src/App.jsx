@@ -1,14 +1,13 @@
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
-import DetailForm from './components/DetailForm'
+import HomePage from './pages/homepage'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
-      <DetailForm />
+      <HomePage />
     </>
   )
 }
