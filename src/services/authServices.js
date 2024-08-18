@@ -32,6 +32,16 @@ export const sendOtp = async (phoneNumber) => {
     return confirmationResult; // Return the confirmationResult to handle verification
   } catch (error) {
     console.error('Error sending OTP:', error);
+    window.recaptchaVerifier.clear();
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      'size': 'invisible',
+      'callback': (response) => {
+        // reCAPTCHA solved, allow signInWithPhoneNumber.
+      },
+      'expired-callback': () => {
+        // Response expired. Ask user to solve reCAPTCHA again.
+      }
+    });
     throw error;
   }
 };

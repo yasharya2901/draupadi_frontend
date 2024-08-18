@@ -8,6 +8,7 @@ import './DetailForm.css';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { auth, app } from '../../firebase/firebaseConfig';
 import { sendOtp, verifyOtp } from '../../services/authServices';
+import saveData from '../../services/dbServices';
 
 function DetailForm() {
   const [name, setName] = useState('');
@@ -109,6 +110,7 @@ function DetailForm() {
         locations: [...locations]
       };
       const response = await verifyOtp(confirmationResult, otp);
+      const save = await saveData(data, response.uid);
       console.log(data);
     } catch (error) {
       alert("Wrong OTP")
